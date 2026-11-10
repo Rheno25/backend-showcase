@@ -1,0 +1,14 @@
+{
+  "name": "backend-showcase",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Portfolio API that serves a live showcase of idempotent orders, optimistic locking, caching, rate limits, and a circuit breaker.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test --test-concurrency=1"
+  }
+}

@@ -1,0 +1,16 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: "8080"
+      DB_PATH: /data/showcase.db
+      API_TOKEN: nxs_demo_local
+      RATE_CAPACITY: "8"
+      RATE_REFILL_PER_SEC: "2"
+    volumes:
+      - showcase-data:/data
+
+volumes:
+  showcase-data:

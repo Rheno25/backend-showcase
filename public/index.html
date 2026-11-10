@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="repository" content="">
+  <title>Backend Showcase</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card: #0f172a;
+      --card-2: #0b1220;
+      --line: #1e293b;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --faint: #64748b;
+      --cyan: #22d3ee;
+      --emerald: #34d399;
+      --amber: #fbbf24;
+      --rose: #fb7185;
+      --indigo: #818cf8;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.5 "Segoe UI", sans-serif;
+    }
+    button, select, textarea, input { font: inherit; color: inherit; }
+    a { color: inherit; text-decoration: none; }
+    code, .mono, textarea, pre, select { font-family: Consolas, "Cascadia Mono", monospace; }
+    .wrap { width: min(1120px, calc(100% - 32px)); margin: 0 auto; }
+    nav {
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(9, 13, 22, 0.9);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(10px);
+    }
+    nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+    .mark {
+      width: 36px; height: 36px; border-radius: 9px;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, #06b6d4, #34d399);
+      color: #042f2e; font-weight: 800;
+    }
+    .nav-links { display: flex; gap: 18px; color: var(--muted); font-size: 14px; }
+    .nav-links a:hover { color: var(--cyan); }
+    .btn, .ghost {
+      border-radius: 10px; border: 1px solid var(--line);
+      background: var(--card); color: var(--text);
+      padding: 8px 12px; cursor: pointer;
+    }
+    .btn { background: linear-gradient(90deg, #06b6d4, #10b981); color: #042f2e; border: 0; font-weight: 700; }
+    .btn:disabled { opacity: 0.6; cursor: wait; }
+    .ghost:hover { border-color: #334155; }
+    main { display: grid; gap: 56px; padding: 28px 0 72px; }
+    .banner, .card, .panel {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+    .banner { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 14px; color: var(--muted); font-size: 12px; }
+    .ok { color: var(--emerald); }
+    .hero { display: grid; grid-template-columns: 1.4fr 0.8fr; gap: 28px; align-items: center; }
+    .kicker { color: var(--cyan); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; }
+    h1 { font-size: clamp(34px, 5vw, 56px); line-height: 1.05; margin: 8px 0 12px; }
+    h1 span { background: linear-gradient(90deg, #22d3ee, #34d399, #818cf8); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    h2 { margin: 4px 0 0; font-size: 28px; }
+    .lede { color: var(--muted); max-width: 62ch; }
+    .stats, .split, .three { display: grid; gap: 12px; }
+    .stats { grid-template-columns: repeat(4, 1fr); margin: 18px 0; }
+    .stat, .mini { background: var(--card-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+    .stat b { display: block; font-size: 22px; margin-top: 4px; }
+    .stat span, .mini span { color: var(--faint); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .terminal { overflow: hidden; }
+    .term-bar, .row, .section-head, .tabs { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .term-bar { padding: 10px 12px; background: #020617; border-bottom: 1px solid var(--line); color: var(--faint); font-size: 12px; }
+    .dots { display: flex; gap: 6px; }
+    .dots i { width: 10px; height: 10px; border-radius: 50%; display: block; }
+    #log { height: 320px; overflow: auto; margin: 0; padding: 14px; background: #020617; font-size: 12px; line-height: 1.6; }
+    .section-head { align-items: end; margin-bottom: 14px; }
+    .tabs { justify-content: flex-start; flex-wrap: wrap; background: var(--card); border: 1px solid var(--line); padding: 6px; border-radius: 12px; }
+    .tabs button, .subtabs button { background: transparent; border: 0; color: var(--muted); border-radius: 8px; padding: 7px 10px; cursor: pointer; }
+    .tabs button.active { background: #1e293b; color: var(--text); }
+    .panel { padding: 22px; }
+    .flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 10px; margin: 16px 0; }
+    .step { text-align: center; padding: 16px 10px; }
+    .arrow { display: grid; place-items: center; color: var(--faint); }
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    pre { margin: 0; overflow: auto; background: #020617; border: 1px solid var(--line); border-radius: 12px; padding: 12px; font-size: 12px; color: #a7f3d0; }
+    .hidden { display: none; }
+    .metrics { display: grid; grid-template-columns: 1.6fr 0.8fr; gap: 14px; }
+    canvas { width: 100%; height: 280px; }
+    .bar { height: 10px; background: #020617; border: 1px solid var(--line); border-radius: 99px; overflow: hidden; }
+    .bar span { display: block; height: 100%; width: 0; }
+    .meter { margin: 12px 0; font-size: 12px; color: var(--muted); }
+    .playground { display: grid; grid-template-columns: 0.8fr 1.2fr; overflow: hidden; }
+    .play-side, .play-main { padding: 18px; }
+    .play-main { background: #020617; }
+    label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    select, textarea { width: 100%; background: #020617; border: 1px solid #334155; border-radius: 10px; padding: 10px; }
+    textarea { min-height: 150px; resize: vertical; }
+    .field { margin-bottom: 14px; }
+    .status-pill { border: 1px solid var(--line); border-radius: 99px; padding: 2px 8px; color: var(--muted); }
+    .status-pill.good { color: var(--emerald); border-color: rgba(52, 211, 153, 0.4); }
+    .status-pill.bad { color: var(--rose); border-color: rgba(251, 113, 133, 0.45); }
+    .status-pill.warn { color: var(--amber); border-color: rgba(251, 191, 36, 0.45); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); }
+    th { color: var(--faint); font-weight: 600; font-size: 11px; text-transform: uppercase; }
+    footer { border-top: 1px solid var(--line); color: var(--faint); font-size: 12px; padding: 22px 0; }
+    #toast {
+      position: fixed; right: 16px; bottom: 16px; background: var(--card);
+      border: 1px solid var(--line); padding: 10px 12px; border-radius: 12px;
+      transform: translateY(20px); opacity: 0; transition: 0.2s ease; pointer-events: none;
+    }
+    #toast.show { transform: none; opacity: 1; }
+    @media (max-width: 900px) {
+      .hero, .metrics, .playground, .two, .stats, .flow { grid-template-columns: 1fr; }
+      .nav-links, .arrow { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="toast"></div>
+  <nav>
+    <div class="wrap">
+      <div class="brand"><div class="mark">NX</div> Backend Showcase</div>
+      <div class="nav-links">
+        <a href="#architecture">Architecture</a>
+        <a href="#metrics">Metrics</a>
+        <a href="#playground">API Playground</a>
+        <a href="#infra">Run</a>
+      </div>
+      <button class="ghost" id="clone-btn" type="button">Copy clone command</button>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <div class="banner mono">
+      <div>SQLite WAL · optimistic versions · token bucket · circuit breaker · idempotency keys</div>
+      <div>Health: <b id="health-label" class="ok">checking</b> · uptime <span id="uptime">—</span></div>
+    </div>
+
+    <section class="hero">
+      <div>
+        <div class="kicker">Working API, not a recorded demo</div>
+        <h1>Orders, cache, and failure handling <span>in one process you can run.</span></h1>
+        <p class="lede">This page is served by the Node server in this repository. Creating an order, reading inventory, tripping the rate limiter, and opening the payment circuit all hit real routes backed by SQLite. The chart is this process, measured as it runs.</p>
+        <div class="stats mono">
+          <div class="stat"><span>Requests served</span><b id="stat-requests">0</b></div>
+          <div class="stat"><span>p99 latency</span><b id="stat-p99">0 ms</b></div>
+          <div class="stat"><span>Cache hit rate</span><b id="stat-cache">0%</b></div>
+          <div class="stat"><span>Payment circuit</span><b id="stat-circuit">closed</b></div>
+        </div>
+        <div class="actions">
+          <a class="btn" href="#playground">Open the API playground</a>
+          <button class="ghost" id="load-btn" type="button">Send 40 inventory reads</button>
+        </div>
+      </div>
+      <div class="terminal card">
+        <div class="term-bar"><div class="dots"><i style="background:#fb7185"></i><i style="background:#fbbf24"></i><i style="background:#34d399"></i></div><span>server log</span></div>
+        <pre id="log"></pre>
+      </div>
+    </section>
+
+    <section id="architecture">
+      <div class="section-head">
+        <div>
+          <div class="kicker">What the process actually does</div>
+          <h2>Request path</h2>
+        </div>
+        <div class="tabs" id="arch-tabs">
+          <button type="button" data-view="topology" class="active">Topology</button>
+          <button type="button" data-view="pipeline">Order write</button>
+          <button type="button" data-view="concurrency">Versions</button>
+          <button type="button" data-view="circuit">Circuit breaker</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div data-panel="topology">
+          <p class="lede">One Node process owns the HTTP server, an in-memory LRU inventory cache, the token bucket, the payment circuit, and a SQLite file. There is no separate Kafka or Redis in this repo. The boundaries are real function boundaries, so each one can be split out later without changing the HTTP contract.</p>
+          <div class="flow">
+            <div class="card step"><b>Browser / curl</b><div class="mono" style="color:var(--faint)">same origin</div></div>
+            <div class="arrow">→</div>
+            <div class="card step"><b>Auth + limit</b><div class="mono" style="color:var(--faint)">Bearer, then bucket</div></div>
+            <div class="arrow">→</div>
+            <div class="card step"><b>SQLite WAL</b><div class="mono" style="color:var(--faint)">one transaction</div></div>
+          </div>
+          <div class="two">
+            <div class="mini"><span>Read path</span><p>GET /v2/inventory/:sku checks a 5 second LRU cache, otherwise reads SQLite and stores the row. A successful order deletes that key.</p></div>
+            <div class="mini"><span>Write path</span><p>POST /v2/orders takes a write transaction, checks the version columns, and stores the idempotency key in the same commit as the order.</p></div>
+          </div>
+        </div>
+        <div data-panel="pipeline" class="hidden">
+          <p class="lede">A new order is validated, checked for an existing idempotency key, then charged against the token bucket. Replays of a committed key skip the bucket so a client retry still receives the original order.</p>
+          <pre>BEGIN IMMEDIATE
+-- refuse a key that was stored with a different body
+-- UPDATE inventory SET available = available - ?, version = version + 1
+--   WHERE sku = ? AND version = ? AND available >= ?
+-- UPDATE accounts SET balance_cents = balance_cents - ?, version = version + 1
+--   WHERE id = ? AND version = ? AND balance_cents >= ?
+-- INSERT order + idempotency key
+COMMIT</pre>
+        </div>
+        <div data-panel="concurrency" class="hidden">
+          <p class="lede">The version predicate is optimistic locking. If another writer committed first, <span class="mono">changes</span> comes back as 0 and the API returns 409 instead of overwriting their update. SQLite serializes writers; the version check is what you would keep if the row moved to Postgres.</p>
+          <pre>UPDATE inventory
+SET available = available - :qty,
+    reserved = reserved + :qty,
+    version = version + 1
+WHERE sku = :sku
+  AND version = :expected
+  AND available >= :qty</pre>
+        </div>
+        <div data-panel="circuit" class="hidden">
+          <p class="lede">POST /v2/payments calls a gateway object through a circuit breaker. Mark the gateway down from the playground. After 4 failures in the window, the next call returns 503 and does not touch the gateway. Resetting the circuit lets a healthy gateway capture the reserved order.</p>
+          <div class="three" style="grid-template-columns: repeat(3, 1fr)">
+            <div class="mini"><span>Closed</span><p>Calls reach the gateway. Failures are counted.</p></div>
+            <div class="mini"><span>Open</span><p>Calls fail fast with CIRCUIT_BREAKER_OPEN.</p></div>
+            <div class="mini"><span>Half-open</span><p>After the cooldown, one trial call decides whether to close.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="metrics">
+      <div class="section-head">
+        <div>
+          <div class="kicker">Process telemetry</div>
+          <h2>Live metrics from this server</h2>
+        </div>
+        <p class="lede" style="margin:0">RPS is a 5 second window. Latency is the p99 of recent requests. Idle time sits near zero because nothing is being invented.</p>
+      </div>
+      <div class="metrics">
+        <div class="card" style="padding:16px">
+          <canvas id="chart" width="720" height="280"></canvas>
+        </div>
+        <div class="card" style="padding:16px">
+          <div class="meter"><div class="row"><span>CPU</span><b id="cpu-val">0%</b></div><div class="bar"><span id="cpu-bar" style="background:var(--cyan)"></span></div></div>
+          <div class="meter"><div class="row"><span>RSS</span><b id="rss-val">0 MB</b></div><div class="bar"><span id="rss-bar" style="background:var(--emerald)"></span></div></div>
+          <div class="meter"><div class="row"><span>Event loop load</span><b id="rps-val">0</b></div><div class="bar"><span id="rps-bar" style="background:var(--indigo)"></span></div></div>
+          <p class="lede" style="font-size:13px">Drive the chart with “Send 40 inventory reads”. Cache hits are cheap, so the second burst should show a higher hit rate rather than a higher stock count.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="playground">
+      <div class="section-head">
+        <div>
+          <div class="kicker">Interactive API</div>
+          <h2>API Playground</h2>
+        </div>
+        <div class="mono" style="color:var(--muted)">Bearer <span id="token-label">nxs_demo_local</span> · <span id="origin-label"></span></div>
+      </div>
+      <div class="card playground">
+        <div class="play-side">
+          <div class="field">
+            <label for="endpoint">Endpoint</label>
+            <select id="endpoint">
+              <option value="create_order">POST /v2/orders</option>
+              <option value="get_inventory">GET /v2/inventory/SKU-992</option>
+              <option value="rate_limit">Burst POST /v2/orders until 429</option>
+              <option value="circuit_open">Open the payment circuit</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="body">JSON body</label>
+            <textarea id="body" spellcheck="false"></textarea>
+          </div>
+          <button class="btn" id="send-btn" type="button" style="width:100%">Execute request</button>
+          <button class="ghost" id="restore-btn" type="button" style="width:100%; margin-top:8px">Restore payment gateway</button>
+        </div>
+        <div class="play-main">
+          <div class="row">
+            <div>Status <b id="api-status" class="status-pill">Waiting</b></div>
+            <div>Latency <b id="api-latency">—</b></div>
+          </div>
+          <pre id="api-response" style="min-height:220px; margin-top:12px">The response from this server will land here.</pre>
+          <div class="field" style="margin-top:12px">
+            <label>curl</label>
+            <pre id="curl"></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px; padding:16px">
+        <div class="row" style="margin-bottom:8px"><b>Orders in SQLite</b><button class="ghost" id="refresh-orders" type="button">Refresh</button></div>
+        <table>
+          <thead><tr><th>Order</th><th>Account</th><th>SKU</th><th>Qty</th><th>Total</th><th>Status</th></tr></thead>
+          <tbody id="orders-body"><tr><td colspan="6">No orders yet.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="infra">
+      <div class="section-head">
+        <div>
+          <div class="kicker">Repo</div>
+          <h2>Run it</h2>
+        </div>
+        <div class="subtabs tabs" id="infra-tabs">
+          <button type="button" data-infra="run" class="active">Local</button>
+          <button type="button" data-infra="docker">Docker</button>
+          <button type="button" data-infra="metrics">/metrics</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div data-infra-panel="run">
+          <p class="lede">Node 22 or newer. No npm packages. The default API token is <span class="mono">nxs_demo_local</span>. Override it with <span class="mono">API_TOKEN</span> if this process is reachable by anyone else.</p>
+          <pre>npm start
+npm test
+
+curl http://127.0.0.1:8080/health
+curl -H "Authorization: Bearer nxs_demo_local" http://127.0.0.1:8080/v2/inventory/SKU-992</pre>
+        </div>
+        <div data-infra-panel="docker" class="hidden">
+          <pre>docker compose up --build
+# API on http://127.0.0.1:8080
+# SQLite file stored in the showcase-data volume</pre>
+        </div>
+        <div data-infra-panel="metrics" class="hidden">
+          <pre id="metrics-text">Open this tab to fetch /metrics.</pre>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <div class="wrap row">
+      <span>Backend Showcase · MIT</span>
+      <span>Seeded SKUs: SKU-992, SKU-100, SKU-LOW · accounts ACC_99201 and ACC_EMPTY</span>
+    </div>
+  </footer>
+  <script>
+    const TOKEN = "nxs_demo_local";
+    const originLabel = document.querySelector("#origin-label");
+    originLabel.textContent = location.origin;
+    const points = [];
+    const canvas = document.querySelector("#chart");
+    const ctx = canvas.getContext("2d");
+
+    document.querySelector("#clone-btn").addEventListener("click", async () => {
+      const repo = document.querySelector('meta[name="repository"]').content;
+      const command = repo ? `git clone ${repo}.git` : "git clone <your-github-url>/backend-showcase.git";
+      await navigator.clipboard.writeText(command);
+      toast("Clone command copied");
+    });
+
+    document.querySelectorAll("#arch-tabs button").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("#arch-tabs button").forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+        document.querySelectorAll("[data-panel]").forEach((panel) => {
+          panel.classList.toggle("hidden", panel.dataset.panel !== button.dataset.view);
+        });
+      });
+    });
+
+    document.querySelectorAll("#infra-tabs button").forEach((button) => {
+      button.addEventListener("click", async () => {
+        document.querySelectorAll("#infra-tabs button").forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+        document.querySelectorAll("[data-infra-panel]").forEach((panel) => {
+          panel.classList.toggle("hidden", panel.dataset.infraPanel !== button.dataset.infra);
+        });
+        if (button.dataset.infra === "metrics") {
+          const response = await fetch("/metrics");
+          document.querySelector("#metrics-text").textContent = await response.text();
+        }
+      });
+    });
+
+    const presets = {
+      create_order: () => JSON.stringify({
+        account_id: "ACC_99201",
+        sku: "SKU-992",
+        quantity: 1,
+        currency: "USD",
+        idempotency_token: `idem_${Math.random().toString(36).slice(2, 12)}`
+      }, null, 2),
+      get_inventory: () => "{}",
+      rate_limit: () => JSON.stringify({
+        account_id: "ACC_99201",
+        sku: "SKU-992",
+        quantity: 1,
+        currency: "USD"
+      }, null, 2),
+      circuit_open: () => JSON.stringify({ order_id: "created automatically", gateway: "demo" }, null, 2)
+    };
+
+    const endpoint = document.querySelector("#endpoint");
+    const bodyField = document.querySelector("#body");
+    endpoint.addEventListener("change", loadPreset);
+    bodyField.addEventListener("input", renderCurl);
+    loadPreset();
+
+    document.querySelector("#send-btn").addEventListener("click", execute);
+    document.querySelector("#restore-btn").addEventListener("click", restoreGateway);
+    document.querySelector("#refresh-orders").addEventListener("click", loadOrders);
+    document.querySelector("#load-btn").addEventListener("click", generateLoad);
+
+    const stream = new EventSource("/api/stream");
+    stream.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      if (message.type === "hello") {
+        renderLogs(message.logs || []);
+        applySnapshot(message.snapshot, false);
+      } else if (message.type === "log") {
+        appendLog(message.entry);
+      } else if (message.type === "tick") {
+        applySnapshot(message.snapshot, true);
+      }
+    };
+
+    function loadPreset() {
+      bodyField.value = presets[endpoint.value]();
+      renderCurl();
+      clearResult();
+    }
+
+    function renderCurl() {
+      const spec = curlSpec();
+      document.querySelector("#curl").textContent = spec;
+    }
+
+    function curlSpec() {
+      const base = `${location.origin}`;
+      if (endpoint.value === "get_inventory") {
+        return `curl -H "Authorization: Bearer ${TOKEN}" ${base}/v2/inventory/SKU-992`;
+      }
+      if (endpoint.value === "rate_limit") {
+        return `curl -X POST ${base}/v2/orders -H "Authorization: Bearer ${TOKEN}" -H "Content-Type: application/json" -d '${bodyField.value.replace(/\s+/g, " ")}'`;
+      }
+      if (endpoint.value === "circuit_open") {
+        return `curl -X POST ${base}/v2/admin/faults -H "Authorization: Bearer ${TOKEN}" -H "Content-Type: application/json" -d '{"payment_gateway":"down","reset_circuit":true}'`;
+      }
+      return `curl -X POST ${base}/v2/orders -H "Authorization: Bearer ${TOKEN}" -H "Content-Type: application/json" -d '${bodyField.value.replace(/\s+/g, " ")}'`;
+    }
+
+    async function execute() {
+      const button = document.querySelector("#send-btn");
+      button.disabled = true;
+      try {
+        if (endpoint.value === "rate_limit") {
+          await runRateLimit();
+        } else if (endpoint.value === "circuit_open") {
+          await runCircuit();
+        } else if (endpoint.value === "get_inventory") {
+          const result = await call("/v2/inventory/SKU-992");
+          showResult(result);
+        } else {
+          const result = await call("/v2/orders", { method: "POST", body: bodyField.value });
+          showResult(result);
+          await loadOrders();
+        }
+      } catch (error) {
+        showResult({ status: 0, ms: 0, headers: {}, body: { error: "BROWSER", message: error.message } });
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    async function runRateLimit() {
+      const template = JSON.parse(bodyField.value || "{}");
+      const attempts = [];
+      let last;
+      for (let i = 0; i < 16; i += 1) {
+        const payload = { ...template, idempotency_token: `burst_${Date.now()}_${i}` };
+        last = await call("/v2/orders", { method: "POST", body: JSON.stringify(payload) });
+        attempts.push(last.status);
+        if (last.status === 429) break;
+      }
+      showResult(last, { attempts });
+      await loadOrders();
+    }
+
+    async function runCircuit() {
+      const created = await call("/v2/orders", {
+        method: "POST",
+        body: JSON.stringify({
+          account_id: "ACC_99201",
+          sku: "SKU-100",
+          quantity: 1,
+          currency: "USD",
+          idempotency_token: `idem_circuit_${Date.now()}`
+        })
+      });
+      if (created.status !== 201) {
+        showResult(created);
+        return;
+      }
+      await call("/v2/admin/faults", {
+        method: "POST",
+        body: JSON.stringify({ payment_gateway: "down", reset_circuit: true })
+      });
+      const attempts = [];
+      let last;
+      for (let i = 0; i < 6; i += 1) {
+        last = await call("/v2/payments", {
+          method: "POST",
+          body: JSON.stringify({ order_id: created.body.order_id, gateway: "demo" })
+        });
+        attempts.push(last.status);
+      }
+      showResult(last, { order_id: created.body.order_id, attempts });
+      await loadOrders();
+    }
+
+    async function restoreGateway() {
+      const result = await call("/v2/admin/faults", {
+        method: "POST",
+        body: JSON.stringify({ payment_gateway: "healthy", reset_circuit: true })
+      });
+      showResult(result);
+      toast("Payment gateway restored");
+    }
+
+    async function generateLoad() {
+      const button = document.querySelector("#load-btn");
+      button.disabled = true;
+      await Promise.all(Array.from({ length: 40 }, () => fetch("/v2/inventory/SKU-992", {
+        headers: { authorization: `Bearer ${TOKEN}` }
+      })));
+      button.disabled = false;
+      toast("40 inventory reads finished");
+    }
+
+    async function call(path, options = {}) {
+      const started = performance.now();
+      const response = await fetch(path, {
+        method: options.method || "GET",
+        headers: {
+          authorization: `Bearer ${TOKEN}`,
+          ...(options.body ? { "content-type": "application/json" } : {})
+        },
+        body: options.body
+      });
+      const text = await response.text();
+      let body = text;
+      try { body = text ? JSON.parse(text) : null; } catch { /* keep text */ }
+      return {
+        status: response.status,
+        ms: performance.now() - started,
+        headers: {
+          "x-cache": response.headers.get("x-cache"),
+          "retry-after": response.headers.get("retry-after")
+        },
+        body
+      };
+    }
+
+    function showResult(result, extra) {
+      const pill = document.querySelector("#api-status");
+      pill.textContent = String(result.status);
+      pill.className = `status-pill ${result.status >= 200 && result.status < 300 ? "good" : result.status === 429 ? "warn" : "bad"}`;
+      document.querySelector("#api-latency").textContent = `${result.ms.toFixed(1)} ms`;
+      document.querySelector("#api-response").textContent = JSON.stringify({ ...extra, ...result, ms: Number(result.ms.toFixed(1)) }, null, 2);
+    }
+
+    function clearResult() {
+      document.querySelector("#api-status").textContent = "Waiting";
+      document.querySelector("#api-status").className = "status-pill";
+      document.querySelector("#api-latency").textContent = "—";
+      document.querySelector("#api-response").textContent = "The response from this server will land here.";
+    }
+
+    async function loadOrders() {
+      const result = await call("/v2/orders?limit=8");
+      const rows = result.body?.orders || [];
+      const tbody = document.querySelector("#orders-body");
+      tbody.replaceChildren();
+      if (rows.length === 0) {
+        const row = document.createElement("tr");
+        row.innerHTML = "<td colspan='6'>No orders yet.</td>";
+        tbody.append(row);
+        return;
+      }
+      for (const order of rows) {
+        const row = document.createElement("tr");
+        for (const value of [order.order_id, order.account_id, order.sku, order.quantity, order.total_amount, order.status]) {
+          const cell = document.createElement("td");
+          cell.textContent = value;
+          row.append(cell);
+        }
+        tbody.append(row);
+      }
+    }
+
+    function renderLogs(entries) {
+      document.querySelector("#log").textContent = "";
+      for (const entry of entries) appendLog(entry);
+    }
+
+    function appendLog(entry) {
+      const log = document.querySelector("#log");
+      log.textContent += `${entry.t.slice(11, 23)}  ${entry.level.padEnd(5)}  ${entry.message}\n`;
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function applySnapshot(snapshot, chartIt) {
+      if (!snapshot) return;
+      document.querySelector("#stat-requests").textContent = snapshot.request_total.toLocaleString();
+      document.querySelector("#stat-p99").textContent = `${snapshot.p99_ms} ms`;
+      document.querySelector("#stat-cache").textContent = `${Math.round((snapshot.cache?.hitRate || 0) * 100)}%`;
+      document.querySelector("#stat-circuit").textContent = snapshot.circuit?.state || "closed";
+      document.querySelector("#uptime").textContent = `${snapshot.uptime_seconds}s`;
+      document.querySelector("#health-label").textContent = "ok";
+      document.querySelector("#cpu-val").textContent = `${snapshot.cpu_percent}%`;
+      document.querySelector("#cpu-bar").style.width = `${Math.min(100, snapshot.cpu_percent)}%`;
+      const rssMb = snapshot.rss_bytes / 1024 / 1024;
+      document.querySelector("#rss-val").textContent = `${rssMb.toFixed(1)} MB`;
+      document.querySelector("#rss-bar").style.width = `${Math.min(100, rssMb / 2)}%`;
+      document.querySelector("#rps-val").textContent = `${snapshot.rps} rps`;
+      document.querySelector("#rps-bar").style.width = `${Math.min(100, snapshot.rps * 4)}%`;
+      if (chartIt) {
+        points.push(snapshot);
+        if (points.length > 30) points.shift();
+        drawChart();
+      }
+    }
+
+    function drawChart() {
+      const width = canvas.width;
+      const height = canvas.height;
+      ctx.clearRect(0, 0, width, height);
+      ctx.strokeStyle = "#1e293b";
+      ctx.lineWidth = 1;
+      for (let i = 1; i < 4; i += 1) {
+        const y = (height / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+      const maxRps = Math.max(1, ...points.map((point) => point.rps));
+      const maxP99 = Math.max(1, ...points.map((point) => point.p99_ms));
+      stroke(points.map((point) => point.rps / maxRps), "#34d399");
+      stroke(points.map((point) => point.p99_ms / maxP99), "#22d3ee");
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "12px Consolas, monospace";
+      ctx.fillText("rps", 8, 16);
+      ctx.fillStyle = "#34d399";
+      ctx.fillText(String(points.at(-1)?.rps ?? 0), 40, 16);
+      ctx.fillStyle = "#22d3ee";
+      ctx.fillText(`p99 ${points.at(-1)?.p99_ms ?? 0} ms`, 110, 16);
+    }
+
+    function stroke(values, color) {
+      if (values.length < 2) return;
+      ctx.beginPath();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      values.forEach((value, index) => {
+        const x = (index / (values.length - 1)) * canvas.width;
+        const y = canvas.height - value * (canvas.height - 24) - 8;
+        if (index === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+    }
+
+    function toast(message) {
+      const node = document.querySelector("#toast");
+      node.textContent = message;
+      node.classList.add("show");
+      setTimeout(() => node.classList.remove("show"), 2200);
+    }
+
+    fetch("/health").then((response) => {
+      document.querySelector("#health-label").textContent = response.ok ? "ok" : "down";
+    }).catch(() => {
+      document.querySelector("#health-label").textContent = "down";
+    });
+    loadOrders();
+  </script>
+</body>
+</html>
