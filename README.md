@@ -1,6 +1,6 @@
 # Backend Showcase
 
-A small API you can run locally and click through in the browser. It serves the showcase page and the endpoints behind it.
+A small API that can run locally and click through in the browser. It serves the showcase page and the endpoints behind it.
 
 The page is not a mock. Inventory, orders, rate limits, the payment circuit, and the chart all come from this process.
 
